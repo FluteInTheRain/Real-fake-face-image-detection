@@ -34,16 +34,20 @@ os.makedirs(IMG_DIR, exist_ok=True)
 def load_pipeline():
     print(f"[Exp1] Loading pipeline from: {MODEL_PATH}")
     pipe = StableDiffusionXLPipeline.from_pretrained(
-        MODEL_PATH, torch_dtype=torch.float16, use_safetensors=True,
+        MODEL_PATH,
+        torch_dtype=torch.float32,  # float32 required on MPS to avoid NaN/black images
+        use_safetensors=True,
     )
     pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to(DEVICE)
     pipe.enable_attention_slicing()
+    pipe.vae.to(torch.float32)
     return pipe
 
 
 def run_experiment(pipe, steps_list):
     """Generate images at each step count and record latency."""
+    os.makedirs(IMG_DIR, exist_ok=True)  # Ensure directory exists at runtime
     results, baseline_images, generated_images = [], {}, {}
 
     for p_name, prompt_text in PROMPTS.items():

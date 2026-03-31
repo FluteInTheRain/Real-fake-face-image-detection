@@ -43,11 +43,14 @@ NEGATIVE_PROMPT = "ugly, blurry, deformed, poorly drawn, bad anatomy, over-satur
 def load_pipeline():
     print(f"[Exp2] Loading pipeline from: {MODEL_PATH}")
     pipe = StableDiffusionXLPipeline.from_pretrained(
-        MODEL_PATH, torch_dtype=torch.float16, use_safetensors=True,
+        MODEL_PATH,
+        torch_dtype=torch.float32,  # float32 required on MPS to avoid NaN
+        use_safetensors=True,
     )
     pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to(DEVICE)
     pipe.enable_attention_slicing()
+    pipe.vae.to(torch.float32)
     return pipe
 
 

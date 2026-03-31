@@ -47,13 +47,14 @@ def _ram_gb():
 def load_pipeline():
     print(f"[Exp3] Loading pipeline from: {MODEL_PATH}")
     pipe = StableDiffusionXLPipeline.from_pretrained(
-        MODEL_PATH, torch_dtype=torch.float16, use_safetensors=True,
+        MODEL_PATH,
+        torch_dtype=torch.float32,  # float32 required on MPS to avoid NaN
+        use_safetensors=True,
     )
     pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to(DEVICE)
     pipe.enable_attention_slicing()
-    # VAE float16 for memory stability
-    pipe.vae.to(dtype=torch.float16)
+    pipe.vae.to(torch.float32)
     pipe.vae.enable_slicing()
     return pipe
 

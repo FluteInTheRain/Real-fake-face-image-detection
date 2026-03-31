@@ -34,11 +34,14 @@ def main():
     # ── Load pipeline ONCE, reuse for all experiments ──────────────────────
     print("\n[Setup] Loading SSD-1B pipeline...")
     pipe = StableDiffusionXLPipeline.from_pretrained(
-        MODEL_PATH, torch_dtype=torch.float16, use_safetensors=True,
+        MODEL_PATH,
+        torch_dtype=torch.float32,  # float32 required: float16 causes NaN on MPS
+        use_safetensors=True,
     )
     pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to(DEVICE)
     pipe.enable_attention_slicing()
+    pipe.vae.to(torch.float32)  # Ensure VAE stays float32 for stable decode
     print("[Setup] Pipeline ready.\n")
 
     # ── Experiment 1 ────────────────────────────────────────────────────────
@@ -63,7 +66,6 @@ def main():
     print("\n" + "─" * 60)
     print("Running Experiment 3: Stress Test")
     print("─" * 60)
-    pipe.vae.to(dtype=torch.float16)
     pipe.vae.enable_slicing()
     results3 = exp3.run_stress_test(
         pipe, batch_sizes=[1, 2, 4], callback_freqs=[0, 5, 1],
