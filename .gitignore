@@ -1,0 +1,17 @@
+venv/
+.env/
+env/
+
+data/
+datasets/
+temp_results/
+
+__pycache__/
+*.pyc
+
+.vscode/
+.idea/
+.DS_Store
+
+SSD-1B-Traditional/
+dire_research_proposal.md
