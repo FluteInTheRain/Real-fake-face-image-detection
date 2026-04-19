@@ -26,18 +26,12 @@ import torch
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 from transformers import CLIPModel, CLIPProcessor
 
-from config import MODEL_PATH, OUTPUT_DIR, DEVICE, SEED, PROMPTS
+from config import MODEL_PATH, OUTPUT_DIR, DEVICE, SEED, PROMPTS, NEGATIVE_PROMPT
 
 IMG_DIR = os.path.join(OUTPUT_DIR, "exp2_generated_images")
-os.makedirs(IMG_DIR, exist_ok=True)
 
-EXP2_PROMPTS = {
-    "Macro":        PROMPTS["Macro"],
-    "Spatial_Test": "A futuristic cyberpunk city street at night. On the left, a red neon sign shaped like a dragon. On the right, a robot wearing a yellow trench coat holding a transparent umbrella. Rainy weather.",
-    "Portrait":     PROMPTS["Portrait"],
-    "Vector":       PROMPTS["Vector"],
-}
-NEGATIVE_PROMPT = "ugly, blurry, deformed, poorly drawn, bad anatomy, over-saturated, artifact, watermark"
+# CFG Scales to test (same prompts as Experiment 1)
+CFG_SCALES = [3.0, 5.0, 7.0, 9.0, 12.0, 15.0]
 
 
 def load_pipeline():
@@ -61,9 +55,11 @@ def load_clip():
     return model, processor
 
 
-def run_experiment(pipe, clip_model, clip_processor, cfg_scales, inference_steps=20):
+def run_experiment(pipe, clip_model, clip_processor, cfg_scales=CFG_SCALES, inference_steps=20):
+    os.makedirs(IMG_DIR, exist_ok=True)
     results = []
-    for p_name, prompt_text in EXP2_PROMPTS.items():
+    # Use same prompt order as Experiment 1 (Macro, Portrait, Cyberpunk, Vector)
+    for p_name, prompt_text in PROMPTS.items():
         print(f"\n  Prompt: {p_name}")
         for cfg in cfg_scales:
             generator = torch.Generator(device=DEVICE).manual_seed(SEED)
@@ -125,9 +121,8 @@ def plot_results(results):
 
 
 if __name__ == "__main__":
-    CFG_SCALES = [3.0, 5.0, 7.0, 9.0, 12.0]
     pipe = load_pipeline()
     clip_model, clip_processor = load_clip()
-    results = run_experiment(pipe, clip_model, clip_processor, CFG_SCALES, inference_steps=20)
+    results = run_experiment(pipe, clip_model, clip_processor, inference_steps=20)
     plot_results(results)
     print("\n[Exp2] Done.")
