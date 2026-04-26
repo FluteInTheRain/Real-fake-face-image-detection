@@ -18,6 +18,7 @@ Output:
 """
 
 import os, sys, re, argparse
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from pathlib import Path
@@ -31,19 +32,19 @@ from config import OUTPUT_DIR
 # ─────────────────────────────────────────────────────────────────────────────
 # Layout constants
 # ─────────────────────────────────────────────────────────────────────────────
-THUMB_W       = 256        # width of each thumbnail in the grid
-THUMB_H       = 256        # height
-CAPTION_H     = 40         # height of caption bar below each image
-HEADER_H      = 52         # height of the row header (prompt label) on the left
-PAD           = 10         # padding between cells
-FONT_SIZE     = 18         # caption font size
-HEADER_W      = 140        # width of the left-hand prompt label column
-BG_COLOR      = (245, 245, 248)    # light grey background
-HEADER_BG     = (50, 50, 70)      # dark header background
-HEADER_COLOR  = (255, 255, 255)   # white text on header
-CAPTION_BG    = (230, 230, 235)   # caption bar background
-CAPTION_COLOR = (30, 30, 30)      # caption text color
-TITLE_H       = 64                # title bar height at top
+THUMB_W = 256  # width of each thumbnail in the grid
+THUMB_H = 256  # height
+CAPTION_H = 40  # height of caption bar below each image
+HEADER_H = 52  # height of the row header (prompt label) on the left
+PAD = 10  # padding between cells
+FONT_SIZE = 18  # caption font size
+HEADER_W = 140  # width of the left-hand prompt label column
+BG_COLOR = (245, 245, 248)  # light grey background
+HEADER_BG = (50, 50, 70)  # dark header background
+HEADER_COLOR = (255, 255, 255)  # white text on header
+CAPTION_BG = (230, 230, 235)  # caption bar background
+CAPTION_COLOR = (30, 30, 30)  # caption text color
+TITLE_H = 64  # title bar height at top
 
 
 def _load_font(size):
@@ -72,7 +73,7 @@ def _draw_text_centered(draw, text, x, y, w, h, font, color):
 
 def build_grid(
     image_dir: str,
-    groups: dict,           # { "PromptName": [(label, filepath), ...] }
+    groups: dict,  # { "PromptName": [(label, filepath), ...] }
     title: str,
     output_path: str,
     col_header: str = "Parameter",
@@ -85,8 +86,8 @@ def build_grid(
     Cells = thumbnail + caption.
     """
     font_caption = _load_font(FONT_SIZE - 2)
-    font_header  = _load_font(FONT_SIZE)
-    font_title   = _load_font(FONT_SIZE + 4)
+    font_header = _load_font(FONT_SIZE)
+    font_title = _load_font(FONT_SIZE + 4)
 
     prompt_names = list(groups.keys())
     n_rows = len(prompt_names)
@@ -110,8 +111,19 @@ def build_grid(
     sample_labels = [label for label, _ in list(groups.values())[0]]
     for c, label in enumerate(sample_labels):
         x = HEADER_W + c * cell_w + PAD
-        draw.rectangle([x, TITLE_H, x + THUMB_W, TITLE_H + CAPTION_H - 4], fill=HEADER_BG)
-        _draw_text_centered(draw, str(label), x, TITLE_H, THUMB_W, CAPTION_H - 4, font_caption, HEADER_COLOR)
+        draw.rectangle(
+            [x, TITLE_H, x + THUMB_W, TITLE_H + CAPTION_H - 4], fill=HEADER_BG
+        )
+        _draw_text_centered(
+            draw,
+            str(label),
+            x,
+            TITLE_H,
+            THUMB_W,
+            CAPTION_H - 4,
+            font_caption,
+            HEADER_COLOR,
+        )
 
     # ── Rows ─────────────────────────────────────────────────────────────────
     y_offset = TITLE_H + CAPTION_H
@@ -120,7 +132,9 @@ def build_grid(
 
         # Left header: prompt name
         draw.rectangle([0, y, HEADER_W - PAD, y + cell_h - PAD], fill=HEADER_BG)
-        _draw_text_centered(draw, p_name, 0, y, HEADER_W - PAD, cell_h - PAD, font_header, HEADER_COLOR)
+        _draw_text_centered(
+            draw, p_name, 0, y, HEADER_W - PAD, cell_h - PAD, font_header, HEADER_COLOR
+        )
 
         # Cells
         for col_idx, (label, fpath) in enumerate(groups[p_name]):
@@ -129,19 +143,39 @@ def build_grid(
             cy = y + PAD
 
             if fpath and os.path.exists(fpath):
-                img = Image.open(fpath).convert("RGB").resize((THUMB_W, THUMB_H), Image.LANCZOS)
+                img = (
+                    Image.open(fpath)
+                    .convert("RGB")
+                    .resize((THUMB_W, THUMB_H), Image.LANCZOS)
+                )
             else:
                 # Placeholder if image missing
                 img = Image.new("RGB", (THUMB_W, THUMB_H), (180, 180, 200))
                 d = ImageDraw.Draw(img)
-                d.text((10, THUMB_H // 2 - 10), "N/A", fill=(100, 100, 100), font=font_caption)
+                d.text(
+                    (10, THUMB_H // 2 - 10),
+                    "N/A",
+                    fill=(100, 100, 100),
+                    font=font_caption,
+                )
 
             canvas.paste(img, (cx, cy))
 
             # Caption bar
             cap_y = cy + THUMB_H
-            draw.rectangle([cx, cap_y, cx + THUMB_W, cap_y + CAPTION_H - PAD], fill=CAPTION_BG)
-            _draw_text_centered(draw, str(label), cx, cap_y, THUMB_W, CAPTION_H - PAD, font_caption, CAPTION_COLOR)
+            draw.rectangle(
+                [cx, cap_y, cx + THUMB_W, cap_y + CAPTION_H - PAD], fill=CAPTION_BG
+            )
+            _draw_text_centered(
+                draw,
+                str(label),
+                cx,
+                cap_y,
+                THUMB_W,
+                CAPTION_H - PAD,
+                font_caption,
+                CAPTION_COLOR,
+            )
 
     canvas.save(output_path, dpi=(300, 300))
     print(f"[Grid] Saved: {output_path}  ({total_w}×{total_h} px)")
@@ -151,6 +185,7 @@ def build_grid(
 # ─────────────────────────────────────────────────────────────────────────────
 # Experiment-specific parsers
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def build_exp1_grid():
     """Group exp1 images by prompt, ordered by step count."""
@@ -166,7 +201,9 @@ def build_exp1_grid():
         m = pattern.match(fname)
         if m:
             p_name, steps = m.group(1), int(m.group(2))
-            groups_raw.setdefault(p_name, []).append((steps, os.path.join(img_dir, fname)))
+            groups_raw.setdefault(p_name, []).append(
+                (steps, os.path.join(img_dir, fname))
+            )
 
     # Sort each prompt's entries by step count
     groups = {
@@ -198,7 +235,9 @@ def build_exp2_grid():
         m = pattern.match(fname)
         if m:
             p_name, cfg = m.group(1), float(m.group(2))
-            groups_raw.setdefault(p_name, []).append((cfg, os.path.join(img_dir, fname)))
+            groups_raw.setdefault(p_name, []).append(
+                (cfg, os.path.join(img_dir, fname))
+            )
 
     groups = {
         p: [(f"CFG {c:.1f}", fp) for c, fp in sorted(entries)]
@@ -220,9 +259,16 @@ def build_exp2_grid():
 # ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Stitch experiment images into a grid for docs.")
-    parser.add_argument("--exp", type=int, choices=[1, 2], default=None,
-                        help="Which experiment to grid (1 or 2). Default: both.")
+    parser = argparse.ArgumentParser(
+        description="Stitch experiment images into a grid for docs."
+    )
+    parser.add_argument(
+        "--exp",
+        type=int,
+        choices=[1, 2],
+        default=None,
+        help="Which experiment to grid (1 or 2). Default: both.",
+    )
     args = parser.parse_args()
 
     if args.exp is None or args.exp == 1:

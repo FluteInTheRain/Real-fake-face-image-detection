@@ -1,5 +1,5 @@
 """
-run_all.py - Run all 3 experiments sequentially.
+run_all.py - Run all 2 experiments sequentially.
 
 Usage:
     cd /Users/khang/Downloads/lab02
@@ -9,7 +9,6 @@ Usage:
     # Or run a single experiment:
     python sd_research/experiment1_steps.py
     python sd_research/experiment2_cfg.py
-    python sd_research/experiment3_stress.py
 """
 
 import os, sys
