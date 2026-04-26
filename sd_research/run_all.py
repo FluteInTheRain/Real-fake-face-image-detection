@@ -4,25 +4,33 @@ run_all.py - Run all 3 experiments sequentially.
 Usage:
     cd /Users/khang/Downloads/lab02
     source .venv/bin/activate
-    python part1_sd_research/run_all.py
+    python sd_research/run_all.py
 
     # Or run a single experiment:
-    python part1_sd_research/experiment1_steps.py
-    python part1_sd_research/experiment2_cfg.py
-    python part1_sd_research/experiment3_stress.py
+    python sd_research/experiment1_steps.py
+    python sd_research/experiment2_cfg.py
+    python sd_research/experiment3_stress.py
 """
 
 import os, sys
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import torch
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 
-from config import MODEL_PATH, OUTPUT_DIR, DEVICE, SEED, NEGATIVE_PROMPT, CFG_SCALE, PROMPTS
+from config import (
+    MODEL_PATH,
+    OUTPUT_DIR,
+    DEVICE,
+    SEED,
+    NEGATIVE_PROMPT,
+    CFG_SCALE,
+    PROMPTS,
+)
 
-import experiment1_steps  as exp1
-import experiment2_cfg    as exp2
-import experiment3_stress as exp3
+import experiment1_steps as exp1
+import experiment2_cfg as exp2
 
 
 def main():
@@ -58,21 +66,11 @@ def main():
     print("Running Experiment 2: CFG Scale Sensitivity")
     print("─" * 60)
     clip_model, clip_processor = exp2.load_clip()
-    results2 = exp2.run_experiment(pipe, clip_model, clip_processor, cfg_scales=[3.0, 5.0, 7.0, 9.0, 12.0])
+    results2 = exp2.run_experiment(
+        pipe, clip_model, clip_processor, cfg_scales=[3.0, 5.0, 7.0, 9.0, 12.0]
+    )
     exp2.plot_results(results2)
     del clip_model, clip_processor  # Free memory before stress test
-
-    # ── Experiment 3 ────────────────────────────────────────────────────────
-    print("\n" + "─" * 60)
-    print("Running Experiment 3: Stress Test")
-    print("─" * 60)
-    pipe.vae.enable_slicing()
-    results3 = exp3.run_stress_test(
-        pipe, batch_sizes=[1, 2, 4], callback_freqs=[0, 5, 1],
-        prompt="A cinematic shot of a futuristic sports car, high resolution.",
-        negative_prompt="blurry, low quality, artifacts",
-    )
-    exp3.plot_results(results3)
 
     # ── Summary ─────────────────────────────────────────────────────────────
     print(f"\n{'=' * 60}")
