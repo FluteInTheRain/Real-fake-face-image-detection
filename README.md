@@ -48,5 +48,5 @@ pip install -r requirements.txt
 - The trained model is saved as: `resnet50_best_real_fake.pth`
 - To launch the web application (Streamlit): 
 ```bash
-streamlit run dire_detection/app.py
+streamlit run fake-image-detection/app.py
 ```
