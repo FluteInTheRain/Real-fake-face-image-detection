@@ -22,7 +22,7 @@ def load_model():
     model.fc = nn.Linear(model.fc.in_features, 2)
     model.load_state_dict(
         torch.load(
-            "./dire_detection/resnet50_best_real_fake.pth",
+            "./fake-image-detection/resnet50_best_real_fake.pth",
             map_location=device,
             weights_only=True,
         )
