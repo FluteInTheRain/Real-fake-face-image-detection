@@ -71,5 +71,6 @@ if uploaded_files:
         # Show in the UI
         with cols[idx % 4]:
             st.image(img, use_container_width=True)
-            st.markdown(f"**Result: :{color}[{label}]**")
+            st.markdown(f"**Truth Label (Filename):** `{file.name}`")
+            st.markdown(f"**Prediction:** :{color}[**{label}**]")
             st.caption(f"Confidence: {score:.2f}%")
