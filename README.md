@@ -60,7 +60,7 @@ pip install -r requirements.txt
 ```
 - Download the dataset from Kaggle and save it to `datasets/dataset.zip`: [https://www.kaggle.com/datasets/shreyanshpatel1/130k-real-vs-fake-face](https://www.kaggle.com/datasets/shreyanshpatel1/130k-real-vs-fake-face)
 
-- Download the model SSD-1B here: [https://huggingface.co/segmind/SSD-1B](https://huggingface.co/segmind/SSD-1B)
+- Download the model SSD-1B here: [https://huggingface.co/segmind/SSD-1B](https://huggingface.co/segmind/SSD-1B). Save as folder `./SSD-1B-Traditional`.
 
 
 ### Running Part 1 (Stable Diffusion Investigation):
