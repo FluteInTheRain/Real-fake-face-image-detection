@@ -1,4 +1,4 @@
-venv/
+.venv/
 .env/
 env/
 
@@ -15,3 +15,8 @@ __pycache__/
 
 SSD-1B-Traditional/
 outputs/
+/fake-image-detection/resnet50_best_real_fake.pth
+/fake-image-detection/test_split.csv
+/fake-image-detection/train_split.csv
+/fake-image-detection/val_split.csv
+/fake-image-detection/TODO.md
