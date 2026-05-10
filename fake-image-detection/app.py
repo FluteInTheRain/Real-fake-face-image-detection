@@ -4,6 +4,7 @@ import torch.nn as nn
 from torchvision.models import resnet50
 import torchvision.transforms as transforms
 from PIL import Image
+from huggingface_hub import hf_hub_download
 
 # 1. Config page and models
 st.set_page_config(page_title="Real vs Fake Image Detector", layout="wide")
@@ -20,9 +21,16 @@ device = torch.device(
 def load_model():
     model = resnet50(weights=None)
     model.fc = nn.Linear(model.fc.in_features, 2)
+
+    # Tải file từ Hugging Face Model Hub
+    model_path = hf_hub_download(
+        repo_id="nhatkhangnguyen/resnet-50-real-fake-face-detection",  # TODO: Thay "USERNAME/MODEL_NAME" bằng ID model của bạn trên Hugging Face
+        filename="resnet50_best_real_fake.pth",
+    )
+
     model.load_state_dict(
         torch.load(
-            "./fake-image-detection/resnet50_best_real_fake.pth",
+            model_path,
             map_location=device,
             weights_only=True,
         )
